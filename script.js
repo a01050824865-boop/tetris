@@ -11,8 +11,15 @@ const linesElement = document.getElementById('lines');
 // Game Constants
 const ROWS = 20;
 const COLS = 10;
-// Dynamically calculate block size responsive to screen height
-let BLOCK_SIZE = Math.max(15, Math.min(30, Math.floor((window.innerHeight - 350) / ROWS)));
+// Dynamically calculate block size responsive to screen height & width
+const availableHeight = window.innerHeight - 280; // controls + navbar
+const availableWidth = window.innerWidth - 120; // safe area for left sidebar
+let BLOCK_SIZE = Math.max(15, Math.min(30, 
+    Math.min(
+        Math.floor(availableHeight / ROWS),
+        Math.floor(availableWidth / COLS)
+    )
+));
 
 // Resize canvases appropriately
 canvas.width = COLS * BLOCK_SIZE;

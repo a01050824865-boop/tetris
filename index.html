@@ -58,23 +58,24 @@
 <span class="font-headline uppercase tracking-tighter font-bold">LVL 01</span>
 </div>
 </header>
-<main class="flex-grow flex flex-col md:flex-row items-center justify-center p-4 md:p-8 gap-8 overflow-hidden">
-<aside class="flex flex-row md:flex-col gap-6 md:w-48 justify-between w-full max-w-md md:max-w-none">
+<main class="flex-grow flex flex-col md:flex-row items-center justify-center p-2 md:p-8 gap-4 md:gap-8 overflow-hidden w-full max-w-4xl mx-auto">
+<div class="flex flex-row items-start justify-center gap-4 w-full md:w-auto">
+<aside class="flex flex-col gap-6 w-20 md:w-32 py-2">
 <div class="space-y-1">
 <p class="text-[10px] font-headline font-bold uppercase text-secondary">SCORE</p>
-<p id="score" class="text-4xl font-headline font-black tracking-tighter text-primary">0</p>
+<p id="score" class="text-2xl md:text-4xl font-headline font-black tracking-tighter text-primary">0</p>
 </div>
 <div class="space-y-1">
 <p class="text-[10px] font-headline font-bold uppercase text-secondary">LEVEL</p>
-<p id="level" class="text-4xl font-headline font-black tracking-tighter text-primary">1</p>
+<p id="level" class="text-2xl md:text-4xl font-headline font-black tracking-tighter text-primary">1</p>
 </div>
 <div class="space-y-1">
 <p class="text-[10px] font-headline font-bold uppercase text-secondary">LINES</p>
-<p id="lines" class="text-4xl font-headline font-black tracking-tighter text-primary">0</p>
+<p id="lines" class="text-2xl md:text-4xl font-headline font-black tracking-tighter text-primary">0</p>
 </div>
-<div class="hidden md:block space-y-4 pt-8">
+<div class="space-y-2 pt-4">
 <p class="text-[10px] font-headline font-bold uppercase text-secondary">NEXT</p>
-<div class="w-24 h-24 bg-surface-container flex items-center justify-center relative">
+<div class="w-16 h-16 md:w-24 md:h-24 bg-surface-container flex items-center justify-center relative border border-outline-variant">
     <canvas id="next-piece" width="96" height="96"></canvas>
 </div>
 </div>
@@ -83,35 +84,36 @@
     <canvas id="game-board" width="300" height="600" class="bg-surface-container-low border-[4px] border-primary tetris-grid"></canvas>
     
     <div id="game-over" class="absolute inset-0 bg-[#f2ffcf] bg-opacity-90 flex flex-col items-center justify-center hidden">
-        <h1 class="text-4xl font-black font-headline text-primary uppercase mb-4">GAME OVER</h1>
-        <p class="text-2xl font-bold mb-4 font-headline text-[#002104] uppercase">Final Score: <span id="final-score">0</span></p>
-        <button id="restart-btn" class="bg-primary text-white font-headline px-6 py-3 font-bold border-4 border-primary hover:bg-[#CDF14B] hover:text-[#002104] transition-none uppercase">RESTART</button>
+        <h1 class="text-3xl font-black font-headline text-primary uppercase mb-2">GAME OVER</h1>
+        <p class="text-xl font-bold mb-4 font-headline text-[#002104] uppercase">Score: <span id="final-score">0</span></p>
+        <button id="restart-btn" class="bg-primary text-white font-headline px-4 py-2 font-bold border-4 border-primary hover:bg-[#CDF14B] hover:text-[#002104] transition-none uppercase">RESTART</button>
     </div>
 </section>
-<aside class="flex flex-col items-center gap-8 w-full max-w-xs">
+</div>
+<aside class="flex flex-col items-center gap-6 w-full max-w-xs md:mt-0 mt-2">
 <div class="grid grid-cols-3 gap-2">
 <div></div>
-<button id="btn-up" class="w-16 h-16 bg-primary text-white flex items-center justify-center hover:opacity-80 active:scale-95 transition-none">
+<button id="btn-up" class="w-14 h-14 md:w-16 md:h-16 bg-primary text-white flex items-center justify-center hover:opacity-80 active:scale-95 transition-none">
 <span class="material-symbols-outlined">expand_less</span>
 </button>
 <div></div>
-<button id="btn-left" class="w-16 h-16 bg-primary text-white flex items-center justify-center hover:opacity-80 active:scale-95 transition-none">
+<button id="btn-left" class="w-14 h-14 md:w-16 md:h-16 bg-primary text-white flex items-center justify-center hover:opacity-80 active:scale-95 transition-none">
 <span class="material-symbols-outlined">chevron_left</span>
 </button>
-<button id="btn-down" class="w-16 h-16 bg-primary text-white flex items-center justify-center hover:opacity-80 active:scale-95 transition-none">
+<button id="btn-down" class="w-14 h-14 md:w-16 md:h-16 bg-primary text-white flex items-center justify-center hover:opacity-80 active:scale-95 transition-none">
 <span class="material-symbols-outlined">expand_more</span>
 </button>
-<button id="btn-right" class="w-16 h-16 bg-primary text-white flex items-center justify-center hover:opacity-80 active:scale-95 transition-none">
+<button id="btn-right" class="w-14 h-14 md:w-16 md:h-16 bg-primary text-white flex items-center justify-center hover:opacity-80 active:scale-95 transition-none">
 <span class="material-symbols-outlined">chevron_right</span>
 </button>
 </div>
-<div class="flex gap-4 w-full">
-<button id="btn-rotate" class="flex-1 py-4 bg-secondary text-white font-headline font-bold uppercase tracking-widest text-sm hover:opacity-90 active:bg-primary">
-                    ROTATE
-                </button>
-<button id="btn-harddrop" class="flex-1 py-4 bg-surface-container-highest text-primary font-headline font-bold uppercase tracking-widest text-sm hover:opacity-90 active:bg-primary active:text-white">
-                    DROP
-                </button>
+<div class="flex gap-4 w-full px-4">
+<button id="btn-rotate" class="flex-1 py-3 bg-secondary text-white font-headline font-bold uppercase tracking-widest text-sm hover:opacity-90 active:bg-primary">
+    ROT
+</button>
+<button id="btn-harddrop" class="flex-1 py-3 bg-surface-container-highest text-primary font-headline font-bold uppercase tracking-widest text-sm hover:opacity-90 active:bg-primary active:text-white">
+    DROP
+</button>
 </div>
 </aside>
 </main>

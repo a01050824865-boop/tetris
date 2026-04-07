@@ -1,47 +1,131 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tetris: Cyber Edition</title>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700;900&family=Inter:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div class="game-container">
-        <canvas id="game-board" width="300" height="600"></canvas>
-        <div class="sidebar">
-            <div class="panel">
-                <h2>NEXT</h2>
-                <canvas id="next-piece" width="120" height="120"></canvas>
-            </div>
-            <div class="panel">
-                <h2>SCORE</h2>
-                <p id="score">0</p>
-            </div>
-            <div class="panel">
-                <h2>LEVEL</h2>
-                <p id="level">1</p>
-            </div>
-            <div class="panel">
-                <h2>LINES</h2>
-                <p id="lines">0</p>
-            </div>
-            <div class="controls-hint">
-                <p>◀ ▶ : Move</p>
-                <p>▲ : Rotate</p>
-                <p>▼ : Soft Drop</p>
-                <p>SPACE : Hard Drop</p>
-            </div>
-        </div>
-    </div>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-fixed": "#cdf14b",
+                    "surface-container-high": "#ddf0b1",
+                    "inverse-surface": "#283508",
+                    "surface-dim": "#cfe1a4",
+                    "secondary-container": "#ccf157",
+                    "secondary": "#516600",
+                    "surface-container-low": "#e9fbbc",
+                    "tertiary": "#171e00",
+                    "background": "#f2ffcf",
+                    "primary": "#002104"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0px",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Space Grotesk"],
+                    "body": ["Inter"],
+                    "label": ["Space Grotesk"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; min-height: max(884px, 100dvh); }
+        .font-headline { font-family: 'Space Grotesk', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .tetris-grid {
+            background-size: 30px 30px;
+            background-image: 
+                linear-gradient(to right, rgba(194, 201, 188, 0.2) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(194, 201, 188, 0.2) 1px, transparent 1px);
+        }
+    </style>
+  </head>
+<body class="bg-background text-on-surface min-h-screen flex flex-col">
+<header class="bg-[#f2ffcf] dark:bg-[#002104] justify-between items-center flex w-full px-6 py-4 sticky top-0 z-50 text-[#002104] dark:text-[#f2ffcf]">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined">grid_view</span>
+<h1 class="text-2xl font-black tracking-tighter font-headline uppercase">TETRIS</h1>
+</div>
+<div class="flex items-center">
+<span class="font-headline uppercase tracking-tighter font-bold">LVL 01</span>
+</div>
+</header>
+<main class="flex-grow flex flex-col md:flex-row items-center justify-center p-4 md:p-8 gap-8 overflow-hidden">
+<aside class="flex flex-row md:flex-col gap-6 md:w-48 justify-between w-full max-w-md md:max-w-none">
+<div class="space-y-1">
+<p class="text-[10px] font-headline font-bold uppercase text-secondary">SCORE</p>
+<p id="score" class="text-4xl font-headline font-black tracking-tighter text-primary">0</p>
+</div>
+<div class="space-y-1">
+<p class="text-[10px] font-headline font-bold uppercase text-secondary">LEVEL</p>
+<p id="level" class="text-4xl font-headline font-black tracking-tighter text-primary">1</p>
+</div>
+<div class="space-y-1">
+<p class="text-[10px] font-headline font-bold uppercase text-secondary">LINES</p>
+<p id="lines" class="text-4xl font-headline font-black tracking-tighter text-primary">0</p>
+</div>
+<div class="hidden md:block space-y-4 pt-8">
+<p class="text-[10px] font-headline font-bold uppercase text-secondary">NEXT</p>
+<div class="w-24 h-24 bg-surface-container flex items-center justify-center relative">
+    <canvas id="next-piece" width="96" height="96"></canvas>
+</div>
+</div>
+</aside>
+<section class="relative">
+    <canvas id="game-board" width="300" height="600" class="bg-surface-container-low border-[4px] border-primary tetris-grid"></canvas>
     
-    <div id="game-over" class="hidden">
-        <h1>GAME OVER</h1>
-        <p>Final Score: <span id="final-score">0</span></p>
-        <button id="restart-btn">Play Again</button>
+    <div id="game-over" class="absolute inset-0 bg-[#f2ffcf] bg-opacity-90 flex flex-col items-center justify-center hidden">
+        <h1 class="text-4xl font-black font-headline text-primary uppercase mb-4">GAME OVER</h1>
+        <p class="text-2xl font-bold mb-4 font-headline text-[#002104] uppercase">Final Score: <span id="final-score">0</span></p>
+        <button id="restart-btn" class="bg-primary text-white font-headline px-6 py-3 font-bold border-4 border-primary hover:bg-[#CDF14B] hover:text-[#002104] transition-none uppercase">RESTART</button>
     </div>
-
-    <script src="script.js"></script>
-</body>
-</html>
+</section>
+<aside class="flex flex-col items-center gap-8 w-full max-w-xs">
+<div class="grid grid-cols-3 gap-2">
+<div></div>
+<button id="btn-up" class="w-16 h-16 bg-primary text-white flex items-center justify-center hover:opacity-80 active:scale-95 transition-none">
+<span class="material-symbols-outlined">expand_less</span>
+</button>
+<div></div>
+<button id="btn-left" class="w-16 h-16 bg-primary text-white flex items-center justify-center hover:opacity-80 active:scale-95 transition-none">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button id="btn-down" class="w-16 h-16 bg-primary text-white flex items-center justify-center hover:opacity-80 active:scale-95 transition-none">
+<span class="material-symbols-outlined">expand_more</span>
+</button>
+<button id="btn-right" class="w-16 h-16 bg-primary text-white flex items-center justify-center hover:opacity-80 active:scale-95 transition-none">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+<div class="flex gap-4 w-full">
+<button id="btn-rotate" class="flex-1 py-4 bg-secondary text-white font-headline font-bold uppercase tracking-widest text-sm hover:opacity-90 active:bg-primary">
+                    ROTATE
+                </button>
+<button id="btn-harddrop" class="flex-1 py-4 bg-surface-container-highest text-primary font-headline font-bold uppercase tracking-widest text-sm hover:opacity-90 active:bg-primary active:text-white">
+                    DROP
+                </button>
+</div>
+</aside>
+</main>
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-stretch h-16 bg-[#f2ffcf] dark:bg-[#002104]">
+<div class="flex flex-col items-center justify-center bg-[#002104] dark:bg-[#f2ffcf] text-[#f2ffcf] dark:text-[#002104] p-4 flex-1">
+<span class="material-symbols-outlined">videogame_asset</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#002104] dark:text-[#f2ffcf] opacity-50 p-4 flex-1">
+<span class="material-symbols-outlined">trophy</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#002104] dark:text-[#f2ffcf] opacity-50 p-4 flex-1">
+<span class="material-symbols-outlined">settings</span>
+</div>
+</nav>
+<div class="h-16"></div>
+<script src="script.js"></script>
+</body></html>

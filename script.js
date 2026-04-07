@@ -356,3 +356,36 @@ function init() {
 }
 
 init();
+
+/* Mobile Controls Binding */
+function setupMobileControls() {
+    const handleControl = (action) => {
+        if (!currentPiece || isGameOver) return;
+        action();
+        draw();
+    };
+
+    const bindButton = (id, action) => {
+        const btn = document.getElementById(id);
+        if (!btn) return;
+        
+        btn.addEventListener('touchstart', (e) => { 
+            e.preventDefault(); 
+            handleControl(action); 
+        }, {passive: false});
+        
+        btn.addEventListener('click', (e) => { 
+            e.preventDefault(); 
+            handleControl(action); 
+        });
+    };
+
+    bindButton('btn-left', () => currentPiece.moveLeft());
+    bindButton('btn-right', () => currentPiece.moveRight());
+    bindButton('btn-down', () => currentPiece.moveDown());
+    bindButton('btn-up', () => currentPiece.rotate());
+    bindButton('btn-rotate', () => currentPiece.rotate());
+    bindButton('btn-harddrop', () => currentPiece.hardDrop());
+}
+
+setupMobileControls();

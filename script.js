@@ -126,6 +126,10 @@ function spawnPiece() {
     currentPiece = nextPieceObj;
     nextPieceObj = randomPiece();
     drawNextPiece();
+    
+    if (!isValid(0, 0)) {
+        gameOver();
+    }
 }
 
 function drawNextPiece() {

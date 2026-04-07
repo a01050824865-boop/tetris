@@ -11,8 +11,16 @@ const linesElement = document.getElementById('lines');
 // Game Constants
 const ROWS = 20;
 const COLS = 10;
-const BLOCK_SIZE = 30; // 300 / 10 and 600 / 20
+// Dynamically calculate block size responsive to screen height
+let BLOCK_SIZE = Math.max(15, Math.min(30, Math.floor((window.innerHeight - 350) / ROWS)));
 
+// Resize canvases appropriately
+canvas.width = COLS * BLOCK_SIZE;
+canvas.height = ROWS * BLOCK_SIZE;
+canvas.style.backgroundSize = `${BLOCK_SIZE}px ${BLOCK_SIZE}px`;
+
+nextCanvas.width = 4 * BLOCK_SIZE;
+nextCanvas.height = 4 * BLOCK_SIZE;
 // Initialize board
 let board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
 

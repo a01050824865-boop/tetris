@@ -129,8 +129,7 @@ function spawnPiece() {
 }
 
 function drawNextPiece() {
-    nextCtx.fillStyle = '#000';
-    nextCtx.fillRect(0, 0, nextCanvas.width, nextCanvas.height);
+    nextCtx.clearRect(0, 0, nextCanvas.width, nextCanvas.height);
     
     if (nextPieceObj) {
         const rows = nextPieceObj.shape.length;
@@ -322,11 +321,10 @@ function drawBoard() {
 }
 
 function draw() {
-    ctx.fillStyle = '#000';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     
     drawBoard();
-    drawGrid();
+    // Grid rendering is handled natively via the tetris-grid CSS class 
     if (currentPiece) currentPiece.draw();
 }
 

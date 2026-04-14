@@ -8,7 +8,8 @@ const views = {
     home: document.getElementById('home-view'),
     game: document.getElementById('game-view'),
     leaderboard: document.getElementById('leaderboard-view'),
-    settings: document.getElementById('settings-view')
+    settings: document.getElementById('settings-view'),
+    admin: document.getElementById('admin-view')
 };
 
 const navButtons = {
@@ -20,6 +21,28 @@ const navButtons = {
 const scoreElement = document.getElementById('score');
 const levelElement = document.getElementById('level');
 const linesElement = document.getElementById('lines');
+
+// Firebase Configuration & Initialization
+const firebaseConfig = {
+  apiKey: "AIzaSyB-Azilugkyw8UJao1oYXqzxl3-t5Kr_9Y",
+  authDomain: "tetris-a32dc.firebaseapp.com",
+  projectId: "tetris-a32dc",
+  storageBucket: "tetris-a32dc.firebasestorage.app",
+  messagingSenderId: "1063969005434",
+  appId: "1:1063969005434:web:3b094d2a324ce291dec0c3",
+  measurementId: "G-RNE8930MYX"
+};
+
+const { initializeApp, getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, getFirestore, collection, doc, setDoc, getDoc, addDoc, query, orderBy, limit, getDocs, deleteDoc, updateDoc, onSnapshot, where, writeBatch } = window.FirebaseLib;
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const provider = new GoogleAuthProvider();
+
+let currentUser = null;
+let userProfile = null;
+const ADMIN_EMAIL = "code_4@adgd.ms.kr";
 
 // Game Constants
 const ROWS = 20;
@@ -276,35 +299,49 @@ function updateHighScoreDisplay() {
     }
 }
 
-function updateLeaderboardUI() {
+async function updateLeaderboardUI() {
     const list = document.getElementById('leaderboard-list');
     if (!list) return;
 
-    list.innerHTML = '';
+    list.innerHTML = `
+        <div class="py-12 text-center opacity-50 font-headline font-bold uppercase tracking-widest">
+            LOADING...
+        </div>
+    `;
     
-    if (leaderboard.length === 0) {
-        list.innerHTML = `
-            <div class="py-12 text-center opacity-50 font-headline font-bold uppercase tracking-widest">
-                NO RECORDS YET
-            </div>
-        `;
-        return;
-    }
-
-    leaderboard.sort((a, b) => b.score - a.score).slice(0, 5).forEach((entry, index) => {
-        const item = document.createElement('div');
-        const isSelf = entry.name === 'YOU';
-        const bgClass = index === 0 ? 'bg-primary text-background' : 'bg-surface-container';
-        const borderClass = index === 0 ? '' : 'border-b border-outline-variant';
+    try {
+        const q = query(collection(db, "scores"), orderBy("score", "desc"), limit(10));
+        const snaps = await getDocs(q);
         
-        item.className = `flex justify-between items-center py-3 px-4 font-headline font-bold text-xl tracking-widest ${bgClass} ${borderClass}`;
-        item.innerHTML = `
-            <span class="w-12">${(index + 1).toString().padStart(2, '0')}</span>
-            <span class="flex-grow text-left ml-4">${entry.name}</span>
-            <span class="text-right">${entry.score.toLocaleString()}</span>
-        `;
-        list.appendChild(item);
-    });
+        if (snaps.empty) {
+            list.innerHTML = `
+                <div class="py-12 text-center opacity-50 font-headline font-bold uppercase tracking-widest">
+                    NO RECORDS YET
+                </div>
+            `;
+            return;
+        }
+
+        list.innerHTML = '';
+        snaps.docs.forEach((doc, index) => {
+            const entry = doc.data();
+            const item = document.createElement('div');
+            const isSelf = currentUser && entry.email === currentUser.email;
+            const bgClass = index === 0 ? 'bg-primary text-background' : 'bg-surface-container';
+            const borderClass = isSelf ? 'border-4 border-accent' : 'border-b border-outline-variant';
+            
+            item.className = `flex justify-between items-center py-3 px-4 font-headline font-bold text-xl tracking-widest ${bgClass} ${borderClass}`;
+            item.innerHTML = `
+                <span class="w-12">${(index + 1).toString().padStart(2, '0')}</span>
+                <span class="flex-grow text-left ml-4">${entry.nickname}</span>
+                <span class="text-right">${entry.score.toLocaleString()}</span>
+            `;
+            list.appendChild(item);
+        });
+    } catch (error) {
+        console.error("Error fetching leaderboard:", error);
+        list.innerHTML = `<div class="py-12 text-center text-red-500 font-headline font-bold uppercase">Error loading data</div>`;
+    }
 }
 
 function updateSettingsUI() {
@@ -344,20 +381,26 @@ updateHighScoreDisplay();
 updateLeaderboardUI();
 updateSettingsUI();
 
-function gameOver() {
+async function gameOver() {
     isGameOver = true;
     cancelAnimationFrame(animationId);
     document.getElementById('final-score').innerText = score;
     document.getElementById('game-over').classList.remove('hidden');
 
-    // Add to leaderboard if score > 0
-    if (score > 0) {
-        leaderboard.push({ name: 'YOU', score: score });
-        // Keep unique highest per name or just top 10? Keep it simple: top 10 total
-        leaderboard.sort((a, b) => b.score - a.score);
-        leaderboard = leaderboard.slice(0, 10);
-        localStorage.setItem('tetrisLeaderboard', JSON.stringify(leaderboard));
-        updateLeaderboardUI();
+    // Add to leaderboard if score > 0 and user is logged in
+    if (score > 0 && currentUser && userProfile) {
+        try {
+            await addDoc(collection(db, "scores"), {
+                uid: currentUser.uid,
+                email: currentUser.email,
+                nickname: userProfile.nickname,
+                score: score,
+                createdAt: new Date()
+            });
+            updateLeaderboardUI();
+        } catch (error) {
+            console.error("Error saving score:", error);
+        }
     }
 }
 
@@ -515,6 +558,14 @@ function showView(viewId) {
         navButtons[navKey].classList.remove('text-[#002104]', 'dark:text-[#f2ffcf]');
     }
 
+    if (viewId === 'leaderboard') {
+        updateLeaderboardUI();
+    }
+    
+    if (viewId === 'admin') {
+        loadAdminDashboard();
+    }
+
     // Pause/Resume game logic
     if (viewId !== 'game' && animationId) {
         cancelAnimationFrame(animationId);
@@ -584,3 +635,192 @@ function setupMobileControls() {
 }
 
 setupMobileControls();
+
+/* --- Firebase Integration Functions --- */
+
+// Authentication State Listener
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        currentUser = user;
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        
+        // Setup Banned Listener
+        onSnapshot(doc(db, "users", user.uid), (doc) => {
+            const data = doc.data();
+            if (data && data.banned) {
+                document.getElementById('banned-overlay').classList.remove('hidden');
+                // Force logout UI but don't call signOut immediately so they see the screen
+            } else {
+                document.getElementById('banned-overlay').classList.add('hidden');
+            }
+        });
+
+        if (userDoc.exists()) {
+            userProfile = userDoc.data();
+            if (userProfile.nickname) {
+                document.getElementById('auth-overlay').classList.add('hidden');
+                document.getElementById('nickname-overlay').classList.add('hidden');
+                updateUserUI();
+                checkAdminAccess();
+            } else {
+                document.getElementById('nickname-overlay').classList.remove('hidden');
+            }
+        } else {
+            // New user
+            document.getElementById('nickname-overlay').classList.remove('hidden');
+        }
+    } else {
+        currentUser = null;
+        userProfile = null;
+        document.getElementById('auth-overlay').classList.remove('hidden');
+        document.getElementById('nickname-overlay').classList.add('hidden');
+        document.getElementById('admin-nav-btn').classList.add('hidden');
+        document.getElementById('user-nickname').innerText = "GUEST";
+    }
+});
+
+// Login Button
+document.getElementById('login-btn').addEventListener('click', async () => {
+    try {
+        await signInWithPopup(auth, provider);
+    } catch (error) {
+        console.error("Login failed:", error);
+        alert("로그인에 실패했습니다.");
+    }
+});
+
+// Save Nickname
+document.getElementById('save-nickname-btn').addEventListener('click', async () => {
+    const nickname = document.getElementById('nickname-input').value.trim();
+    if (!nickname) return alert("닉네임을 입력해주세요.");
+    if (nickname.length > 10) return alert("닉네임은 10자 이내여야 합니다.");
+
+    try {
+        const userRef = doc(db, "users", currentUser.uid);
+        const data = {
+            nickname: nickname,
+            email: currentUser.email,
+            banned: false,
+            updatedAt: new Date()
+        };
+        await setDoc(userRef, data, { merge: true });
+        userProfile = data;
+        document.getElementById('nickname-overlay').classList.add('hidden');
+        document.getElementById('auth-overlay').classList.add('hidden');
+        updateUserUI();
+        checkAdminAccess();
+    } catch (error) {
+        console.error("Error saving nickname:", error);
+        alert("닉네임 저장 중 오류가 발생했습니다.");
+    }
+});
+
+// Logout
+document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
+document.getElementById('banned-logout-btn').addEventListener('click', () => signOut(auth));
+
+function updateUserUI() {
+    if (userProfile) {
+        document.getElementById('user-nickname').innerText = userProfile.nickname;
+    }
+}
+
+function checkAdminAccess() {
+    if (currentUser.email === ADMIN_EMAIL) {
+        document.getElementById('admin-nav-btn').classList.remove('hidden');
+    }
+}
+
+// Admin Navigation
+document.getElementById('admin-nav-btn').addEventListener('click', () => showView('admin'));
+document.getElementById('admin-close-btn').addEventListener('click', () => showView('home'));
+
+// Admin Dashboard Logic
+async function loadAdminDashboard() {
+    if (currentUser.email !== ADMIN_EMAIL) return;
+    
+    // Load Scores
+    const scoresQuery = query(collection(db, "scores"), orderBy("score", "desc"), limit(50));
+    const scoresSnaps = await getDocs(scoresQuery);
+    const scoreList = document.getElementById('admin-scores-list');
+    scoreList.innerHTML = '';
+    
+    scoresSnaps.forEach(sDoc => {
+        const data = sDoc.data();
+        const div = document.createElement('div');
+        div.className = "p-3 bg-surface-container border border-outline-variant flex justify-between items-center text-sm font-headline";
+        div.innerHTML = `
+            <div>
+                <span class="font-bold">${data.nickname}</span>: ${data.score.toLocaleString()}
+                <br><span class="text-[10px] opacity-50">${data.email}</span>
+            </div>
+            <button class="text-red-500 font-bold uppercase text-xs" onclick="deleteScore('${sDoc.id}')">삭제</button>
+        `;
+        scoreList.appendChild(div);
+    });
+
+    // Load Users
+    const usersQuery = query(collection(db, "users"), limit(50));
+    const usersSnaps = await getDocs(usersQuery);
+    const usersList = document.getElementById('admin-users-list');
+    usersList.innerHTML = '';
+    
+    usersSnaps.forEach(uDoc => {
+        const data = uDoc.data();
+        if (data.email === ADMIN_EMAIL) return;
+        
+        const div = document.createElement('div');
+        div.className = "p-3 bg-surface-container border border-outline-variant space-y-2 text-sm font-headline";
+        div.innerHTML = `
+            <div class="flex justify-between items-start">
+                <div>
+                    <span class="font-bold">${data.nickname}</span>
+                    <br><span class="text-[10px] opacity-50">${data.email}</span>
+                </div>
+                <span class="text-[10px] px-2 py-0.5 rounded ${data.banned ? 'bg-red-200 text-red-800' : 'bg-green-200 text-green-800'} uppercase">
+                    ${data.banned ? 'BANNED' : 'ACTIVE'}
+                </span>
+            </div>
+            <div class="flex gap-2">
+                <button class="flex-1 py-1 bg-primary text-background text-[10px] font-bold uppercase" onclick="promptEditNickname('${uDoc.id}', '${data.nickname}')">닉네임 수정</button>
+                <button class="flex-1 py-1 ${data.banned ? 'bg-green-600' : 'bg-red-600'} text-white text-[10px] font-bold uppercase" onclick="toggleBan('${uDoc.id}', ${data.banned}, '${data.email}')">
+                    ${data.banned ? '차단 해제' : '차단'}
+                </button>
+            </div>
+        `;
+        usersList.appendChild(div);
+    });
+}
+
+// Global scope for onclick handlers
+window.deleteScore = async (id) => {
+    if (!confirm("정말 이 점수를 삭제하시겠습니까?")) return;
+    await deleteDoc(doc(db, "scores", id));
+    loadAdminDashboard();
+};
+
+window.promptEditNickname = async (uid, currentNickname) => {
+    const newNickname = prompt("새 닉네임을 입력하세요:", currentNickname);
+    if (newNickname && newNickname !== currentNickname) {
+        await updateDoc(doc(db, "users", uid), { nickname: newNickname });
+        loadAdminDashboard();
+    }
+};
+
+window.toggleBan = async (uid, isBanned, email) => {
+    const action = isBanned ? "차단 해제" : "차단";
+    if (!confirm(`정말 이 사용자를 ${action}하시겠습니까?`)) return;
+    
+    await updateDoc(doc(db, "users", uid), { banned: !isBanned });
+    
+    if (!isBanned) { // Switching to banned
+        // Delete all scores of this user
+        const q = query(collection(db, "scores"), where("email", "==", email));
+        const snaps = await getDocs(q);
+        const batch = writeBatch(db);
+        snaps.forEach(d => batch.delete(d.ref));
+        await batch.commit();
+    }
+    
+    loadAdminDashboard();
+};

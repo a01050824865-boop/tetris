@@ -54,7 +54,12 @@
 <span class="material-symbols-outlined">grid_view</span>
 <h1 class="text-2xl font-black tracking-tighter font-headline uppercase">TETRIS</h1>
 </div>
-<div class="flex items-center">
+<div class="flex items-center gap-4">
+<button id="admin-nav-btn" class="hidden font-headline font-bold bg-primary text-background px-3 py-1 text-xs uppercase">ADMIN</button>
+<div id="user-info" class="flex items-center gap-2">
+    <span id="user-nickname" class="font-headline font-bold uppercase">GUEST</span>
+    <button id="logout-btn" class="material-symbols-outlined text-xl hover:text-primary transition-colors">logout</button>
+</div>
 <span class="font-headline uppercase tracking-tighter font-bold">LVL 01</span>
 </div>
 </header>
@@ -203,6 +208,35 @@
             </div>
         </div>
     </div>
+
+    <!-- Admin View -->
+    <div id="admin-view" class="hidden w-full max-w-4xl flex flex-col items-center">
+        <div class="w-full text-center mb-8">
+            <div class="flex justify-between items-center mb-2">
+                <h1 class="font-headline text-4xl font-black tracking-tighter text-primary uppercase">ADMIN DASHBOARD</h1>
+                <button id="admin-close-btn" class="font-headline font-bold text-primary underline uppercase">닫기</button>
+            </div>
+            <div class="h-1 w-full bg-primary mb-1"></div>
+        </div>
+        
+        <div class="w-full grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Global Leaderboard Management -->
+            <div class="space-y-4">
+                <h2 class="font-headline font-bold text-xl text-primary uppercase border-b-2 border-primary pb-2">리더보드 관리</h2>
+                <div id="admin-scores-list" class="space-y-2 max-h-[400px] overflow-y-auto pr-2">
+                    <!-- Scores will be injected here -->
+                </div>
+            </div>
+            
+            <!-- User Management -->
+            <div class="space-y-4">
+                <h2 class="font-headline font-bold text-xl text-primary uppercase border-b-2 border-primary pb-2">사용자 관리</h2>
+                <div id="admin-users-list" class="space-y-2 max-h-[400px] overflow-y-auto pr-2">
+                    <!-- Users will be injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
 </main>
 
 <nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-stretch h-16 bg-[#f2ffcf] dark:bg-[#002104] border-t-2 border-primary">
@@ -218,5 +252,49 @@
 </nav>
 
 <div class="h-16"></div>
+
+<!-- Auth Overlay (Login) -->
+<div id="auth-overlay" class="fixed inset-0 z-[100] bg-background flex flex-col items-center justify-center p-6 text-center">
+    <h1 class="text-6xl md:text-8xl font-black font-headline tracking-tighter text-primary mb-8 uppercase">TETRIS</h1>
+    <p class="font-headline font-bold text-xl text-primary opacity-70 mb-12 uppercase">로그인 후 게임을 즐기실 수 있습니다</p>
+    <button id="login-btn" class="w-full max-w-sm mb-4 h-20 bg-primary text-background font-headline font-extrabold text-2xl flex items-center justify-center border-4 border-primary transition-none active:bg-background active:text-primary uppercase gap-4 px-8">
+        <span class="material-symbols-outlined">login</span>
+        GOOGLE 로그인
+    </button>
+</div>
+
+<!-- Nickname Overlay -->
+<div id="nickname-overlay" class="fixed inset-0 z-[110] bg-background flex flex-col items-center justify-center p-6 text-center hidden">
+    <h1 class="text-4xl font-black font-headline text-primary mb-4 uppercase">닉네임 설정</h1>
+    <p class="font-headline font-bold text-primary opacity-70 mb-8 uppercase">리더보드에 표시될 이름을 입력해주세요</p>
+    <div class="w-full max-w-sm space-y-4">
+        <input type="text" id="nickname-input" class="w-full h-16 bg-surface-container-high border-4 border-primary text-primary font-headline font-bold text-xl px-4 focus:outline-none" placeholder="닉네임 입력 (최대 10자)" maxlength="10">
+        <button id="save-nickname-btn" class="w-full h-16 bg-primary text-background font-headline font-extrabold text-xl flex items-center justify-center border-4 border-primary transition-none active:bg-background active:text-primary uppercase">
+            저장 및 시작
+        </button>
+    </div>
+</div>
+
+<!-- Banned Overlay -->
+<div id="banned-overlay" class="fixed inset-0 z-[120] flex flex-col items-center justify-center p-6 text-center hidden" style="background-color: #ffdad6; color: #ba1a1a;">
+    <span class="material-symbols-outlined text-8xl mb-4">block</span>
+    <h1 class="text-4xl font-black font-headline mb-4 uppercase">접근이 차단되었습니다</h1>
+    <p class="font-headline font-bold opacity-70 mb-8 uppercase">관리자에 의해 이 계정의 접근이 차단되었습니다.</p>
+    <button id="banned-logout-btn" class="px-8 h-16 text-white font-headline font-extrabold text-xl border-4 uppercase" style="background-color: #ba1a1a; border-color: #ba1a1a;">
+        로그아웃
+    </button>
+</div>
+
+<!-- Firebase SDKs -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, collection, doc, setDoc, getDoc, addDoc, query, orderBy, limit, getDocs, deleteDoc, updateDoc, onSnapshot, where, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    window.FirebaseLib = {
+        initializeApp, getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut,
+        getFirestore, collection, doc, setDoc, getDoc, addDoc, query, orderBy, limit, getDocs, deleteDoc, updateDoc, onSnapshot, where, writeBatch
+    };
+</script>
 <script src="script.js"></script>
 </body></html>

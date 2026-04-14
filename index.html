@@ -169,11 +169,8 @@
         </div>
         <div class="w-full bg-surface-container-low p-1 mb-8">
             <div class="bg-surface-container border-2 border-primary p-6">
-                <div class="flex flex-col gap-1">
-                    <div class="flex justify-between items-center py-3 px-4 bg-primary text-background font-headline font-bold text-xl tracking-widest"><span class="w-12">01</span><span class="flex-grow text-left ml-4">CYBER_KING</span><span class="text-right">482,000</span></div>
-                    <div class="flex justify-between items-center py-3 px-4 font-headline font-bold text-xl tracking-widest border-b border-outline-variant"><span class="w-12 text-secondary">02</span><span class="flex-grow text-left ml-4">NEO_PIXEL</span><span class="text-right">395,500</span></div>
-                    <div class="flex justify-between items-center py-3 px-4 font-headline font-bold text-xl tracking-widest border-b border-outline-variant"><span class="w-12 text-secondary">03</span><span class="flex-grow text-left ml-4">GLITCH_BIT</span><span class="text-right">312,000</span></div>
-                    <div class="flex justify-between items-center py-3 px-4 font-headline font-bold text-xl tracking-widest"><span class="w-12 text-secondary">04</span><span class="flex-grow text-left ml-4">BYTE_RUNNER</span><span class="text-right">245,000</span></div>
+                <div id="leaderboard-list" class="flex flex-col gap-1">
+                    <!-- Leaderboard items will be injected here -->
                 </div>
             </div>
         </div>
@@ -188,15 +185,21 @@
         <div class="w-full space-y-6">
             <div class="flex justify-between items-center p-4 bg-surface-container border-b-4 border-primary">
                 <span class="font-headline font-bold uppercase">SOUND EFFECTS</span>
-                <button class="w-12 h-6 bg-primary relative"><div class="absolute right-1 top-1 w-4 h-4 bg-background"></div></button>
+                <button id="toggle-sound" class="w-12 h-6 bg-primary relative transition-colors duration-200">
+                    <div id="handler-sound" class="absolute right-1 top-1 w-4 h-4 bg-background transition-all duration-200"></div>
+                </button>
             </div>
             <div class="flex justify-between items-center p-4 bg-surface-container border-b-4 border-primary">
                 <span class="font-headline font-bold uppercase">MUSIC</span>
-                <button class="w-12 h-6 bg-surface-container-highest relative border border-primary"><div class="absolute left-1 top-1 w-4 h-4 bg-primary"></div></button>
+                <button id="toggle-music" class="w-12 h-6 bg-surface-container-highest relative border border-primary transition-colors duration-200">
+                    <div id="handler-music" class="absolute left-1 top-1 w-4 h-4 bg-primary transition-all duration-200"></div>
+                </button>
             </div>
             <div class="flex justify-between items-center p-4 bg-surface-container border-b-4 border-primary">
                 <span class="font-headline font-bold uppercase">GHOST PIECE</span>
-                <button class="w-12 h-6 bg-primary relative"><div class="absolute right-1 top-1 w-4 h-4 bg-background"></div></button>
+                <button id="toggle-ghost" class="w-12 h-6 bg-primary relative transition-colors duration-200">
+                    <div id="handler-ghost" class="absolute right-1 top-1 w-4 h-4 bg-background transition-all duration-200"></div>
+                </button>
             </div>
         </div>
     </div>

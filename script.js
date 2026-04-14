@@ -78,6 +78,19 @@ let level = 1;
 let isGameOver = false;
 let highScore = localStorage.getItem('tetrisHighScore') || 0;
 
+let leaderboard = JSON.parse(localStorage.getItem('tetrisLeaderboard')) || [
+    { name: 'CYBER_KING', score: 482000 },
+    { name: 'NEO_PIXEL', score: 395500 },
+    { name: 'GLITCH_BIT', score: 312000 },
+    { name: 'BYTE_RUNNER', score: 245000 }
+];
+
+let settings = JSON.parse(localStorage.getItem('tetrisSettings')) || {
+    sound: true,
+    music: false,
+    ghost: true
+};
+
 let currentPiece = null;
 let nextPieceObj = null;
 
@@ -264,14 +277,79 @@ function updateHighScoreDisplay() {
     }
 }
 
-// Initial high score display
+function updateLeaderboardUI() {
+    const list = document.getElementById('leaderboard-list');
+    if (!list) return;
+
+    list.innerHTML = '';
+    leaderboard.sort((a, b) => b.score - a.score).slice(0, 5).forEach((entry, index) => {
+        const item = document.createElement('div');
+        const isSelf = entry.name === 'YOU';
+        const bgClass = index === 0 ? 'bg-primary text-background' : 'bg-surface-container';
+        const borderClass = index === 0 ? '' : 'border-b border-outline-variant';
+        
+        item.className = `flex justify-between items-center py-3 px-4 font-headline font-bold text-xl tracking-widest ${bgClass} ${borderClass}`;
+        item.innerHTML = `
+            <span class="w-12">${(index + 1).toString().padStart(2, '0')}</span>
+            <span class="flex-grow text-left ml-4">${entry.name}</span>
+            <span class="text-right">${entry.score.toLocaleString()}</span>
+        `;
+        list.appendChild(item);
+    });
+}
+
+function updateSettingsUI() {
+    const configs = [
+        { id: 'toggle-sound', handler: 'handler-sound', key: 'sound' },
+        { id: 'toggle-music', handler: 'handler-music', key: 'music' },
+        { id: 'toggle-ghost', handler: 'handler-ghost', key: 'ghost' }
+    ];
+
+    configs.forEach(cfg => {
+        const btn = document.getElementById(cfg.id);
+        const handler = document.getElementById(cfg.handler);
+        const active = settings[cfg.key];
+
+        if (active) {
+            btn.classList.add('bg-primary');
+            btn.classList.remove('bg-surface-container-highest', 'border', 'border-primary');
+            handler.classList.add('right-1', 'bg-background');
+            handler.classList.remove('left-1', 'bg-primary');
+        } else {
+            btn.classList.remove('bg-primary');
+            btn.classList.add('bg-surface-container-highest', 'border', 'border-primary');
+            handler.classList.remove('right-1', 'bg-background');
+            handler.classList.add('left-1', 'bg-primary');
+        }
+    });
+}
+
+function toggleSetting(key) {
+    settings[key] = !settings[key];
+    localStorage.setItem('tetrisSettings', JSON.stringify(settings));
+    updateSettingsUI();
+}
+
+// Initial UI updates
 updateHighScoreDisplay();
+updateLeaderboardUI();
+updateSettingsUI();
 
 function gameOver() {
     isGameOver = true;
     cancelAnimationFrame(animationId);
     document.getElementById('final-score').innerText = score;
     document.getElementById('game-over').classList.remove('hidden');
+
+    // Add to leaderboard if score > 0
+    if (score > 0) {
+        leaderboard.push({ name: 'YOU', score: score });
+        // Keep unique highest per name or just top 10? Keep it simple: top 10 total
+        leaderboard.sort((a, b) => b.score - a.score);
+        leaderboard = leaderboard.slice(0, 10);
+        localStorage.setItem('tetrisLeaderboard', JSON.stringify(leaderboard));
+        updateLeaderboardUI();
+    }
 }
 
 function resetGame() {
@@ -372,8 +450,22 @@ function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
     drawBoard();
-    // Grid rendering is handled natively via the tetris-grid CSS class 
-    if (currentPiece) currentPiece.draw();
+    
+    if (currentPiece) {
+        // Draw Ghost Piece
+        if (settings.ghost) {
+            let ghostY = currentPiece.y;
+            while (isValid(0, ghostY - currentPiece.y + 1)) {
+                ghostY++;
+            }
+            
+            ctx.globalAlpha = 0.3;
+            currentPiece.draw(ctx, 0, ghostY - currentPiece.y);
+            ctx.globalAlpha = 1.0;
+        }
+        
+        currentPiece.draw();
+    }
 }
 
 function update(time = 0) {
@@ -437,6 +529,11 @@ document.getElementById('start-game-btn').addEventListener('click', () => {
 
 document.getElementById('home-scores-btn').addEventListener('click', () => showView('leaderboard'));
 document.getElementById('home-settings-btn').addEventListener('click', () => showView('settings'));
+
+// Settings Toggles
+document.getElementById('toggle-sound').addEventListener('click', () => toggleSetting('sound'));
+document.getElementById('toggle-music').addEventListener('click', () => toggleSetting('music'));
+document.getElementById('toggle-ghost').addEventListener('click', () => toggleSetting('ghost'));
 
 // Quit button in Game Over screen
 document.getElementById('quit-btn').addEventListener('click', () => {

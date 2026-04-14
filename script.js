@@ -90,7 +90,6 @@ class Piece {
             this.y++;
         } else {
             lockPiece();
-            currentPiece = randomPiece();
         }
     }
 

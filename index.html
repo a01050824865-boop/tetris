@@ -58,76 +58,162 @@
 <span class="font-headline uppercase tracking-tighter font-bold">LVL 01</span>
 </div>
 </header>
-<main class="flex-grow flex flex-col md:flex-row items-center justify-center p-2 md:p-8 gap-4 md:gap-8 overflow-hidden w-full max-w-4xl mx-auto">
-<div class="flex flex-row items-start justify-center gap-4 w-full md:w-auto">
-<aside class="flex flex-col gap-6 w-20 md:w-32 py-2">
-<div class="space-y-1">
-<p class="text-[10px] font-headline font-bold uppercase text-secondary">SCORE</p>
-<p id="score" class="text-2xl md:text-4xl font-headline font-black tracking-tighter text-primary">0</p>
-</div>
-<div class="space-y-1">
-<p class="text-[10px] font-headline font-bold uppercase text-secondary">LEVEL</p>
-<p id="level" class="text-2xl md:text-4xl font-headline font-black tracking-tighter text-primary">1</p>
-</div>
-<div class="space-y-1">
-<p class="text-[10px] font-headline font-bold uppercase text-secondary">LINES</p>
-<p id="lines" class="text-2xl md:text-4xl font-headline font-black tracking-tighter text-primary">0</p>
-</div>
-<div class="space-y-2 pt-4">
-<p class="text-[10px] font-headline font-bold uppercase text-secondary">NEXT</p>
-<div class="w-16 h-16 md:w-24 md:h-24 bg-surface-container flex items-center justify-center relative border border-outline-variant">
-    <canvas id="next-piece" width="96" height="96"></canvas>
-</div>
-</div>
-</aside>
-<section class="relative">
-    <canvas id="game-board" width="300" height="600" class="bg-surface-container-low border-[4px] border-primary tetris-grid"></canvas>
-    
-    <div id="game-over" class="absolute inset-0 bg-[#f2ffcf] bg-opacity-90 flex flex-col items-center justify-center hidden">
-        <h1 class="text-3xl font-black font-headline text-primary uppercase mb-2">GAME OVER</h1>
-        <p class="text-xl font-bold mb-4 font-headline text-[#002104] uppercase">Score: <span id="final-score">0</span></p>
-        <button id="restart-btn" class="bg-primary text-white font-headline px-4 py-2 font-bold border-4 border-primary hover:bg-[#CDF14B] hover:text-[#002104] transition-none uppercase">RESTART</button>
+<main class="flex-grow flex flex-col items-center justify-center p-2 md:p-8 gap-4 md:gap-8 overflow-hidden w-full max-w-4xl mx-auto">
+    <!-- Home View -->
+    <div id="home-view" class="w-full h-full flex flex-col justify-center items-center px-6">
+        <div class="w-full flex flex-col items-center mb-16">
+            <h1 class="text-7xl md:text-9xl font-black font-headline tracking-tighter text-primary text-center leading-none uppercase">
+                TETRIS
+            </h1>
+            <div class="mt-4 flex gap-2">
+                <div class="w-8 h-8 bg-primary"></div>
+                <div class="w-8 h-8 bg-secondary"></div>
+                <div class="w-8 h-8 bg-tertiary"></div>
+                <div class="w-8 h-8 bg-surface-container-highest"></div>
+            </div>
+        </div>
+        <div class="w-full max-w-md space-y-4">
+            <button id="start-game-btn" class="w-full h-20 bg-primary text-background font-headline font-extrabold text-2xl flex items-center justify-center border-4 border-primary transition-none active:bg-background active:text-primary uppercase">
+                START GAME
+            </button>
+            <div class="grid grid-cols-2 gap-4">
+                <button id="home-scores-btn" class="h-20 bg-surface-container-high border-4 border-primary text-primary font-headline font-bold text-xl flex items-center justify-center transition-none hover:bg-surface-container-highest active:bg-primary active:text-background uppercase">
+                    SCORES
+                </button>
+                <button id="home-settings-btn" class="h-20 bg-surface-container-high border-4 border-primary text-primary font-headline font-bold text-xl flex items-center justify-center transition-none hover:bg-surface-container-highest active:bg-primary active:text-background uppercase">
+                    SETTINGS
+                </button>
+            </div>
+        </div>
+        <div class="mt-16 w-full max-w-md">
+            <div class="bg-surface-container p-6 border-l-8 border-primary flex justify-between items-center">
+                <div class="flex flex-col">
+                    <span class="font-headline text-xs font-bold opacity-70">HIGH SCORE</span>
+                    <span id="high-score" class="font-headline text-3xl font-black text-primary uppercase">000000</span>
+                </div>
+                <div class="flex flex-col items-end">
+                    <span class="font-headline text-xs font-bold opacity-70 uppercase">VERSION</span>
+                    <span class="font-headline text-lg font-bold text-primary uppercase">V1.0</span>
+                </div>
+            </div>
+        </div>
     </div>
-</section>
-</div>
-<aside class="flex flex-col items-center gap-6 w-full max-w-xs md:mt-0 mt-2">
-<div class="grid grid-cols-3 gap-2">
-<div></div>
-<button id="btn-up" class="w-14 h-14 md:w-16 md:h-16 bg-primary text-white flex items-center justify-center hover:opacity-80 active:scale-95 transition-none">
-<span class="material-symbols-outlined">expand_less</span>
-</button>
-<div></div>
-<button id="btn-left" class="w-14 h-14 md:w-16 md:h-16 bg-primary text-white flex items-center justify-center hover:opacity-80 active:scale-95 transition-none">
-<span class="material-symbols-outlined">chevron_left</span>
-</button>
-<button id="btn-down" class="w-14 h-14 md:w-16 md:h-16 bg-primary text-white flex items-center justify-center hover:opacity-80 active:scale-95 transition-none">
-<span class="material-symbols-outlined">expand_more</span>
-</button>
-<button id="btn-right" class="w-14 h-14 md:w-16 md:h-16 bg-primary text-white flex items-center justify-center hover:opacity-80 active:scale-95 transition-none">
-<span class="material-symbols-outlined">chevron_right</span>
-</button>
-</div>
-<div class="flex gap-4 w-full px-4">
-<button id="btn-rotate" class="flex-1 py-3 bg-secondary text-white font-headline font-bold uppercase tracking-widest text-sm hover:opacity-90 active:bg-primary">
-    ROT
-</button>
-<button id="btn-harddrop" class="flex-1 py-3 bg-surface-container-highest text-primary font-headline font-bold uppercase tracking-widest text-sm hover:opacity-90 active:bg-primary active:text-white">
-    DROP
-</button>
-</div>
-</aside>
+
+    <!-- Game View -->
+    <div id="game-view" class="hidden flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 w-full">
+        <div class="flex flex-row items-start justify-center gap-4 w-full md:w-auto">
+            <aside class="flex flex-col gap-6 w-20 md:w-32 py-2">
+                <div class="space-y-1">
+                    <p class="text-[10px] font-headline font-bold uppercase text-secondary">SCORE</p>
+                    <p id="score" class="text-2xl md:text-4xl font-headline font-black tracking-tighter text-primary">0</p>
+                </div>
+                <div class="space-y-1">
+                    <p class="text-[10px] font-headline font-bold uppercase text-secondary">LEVEL</p>
+                    <p id="level" class="text-2xl md:text-4xl font-headline font-black tracking-tighter text-primary">1</p>
+                </div>
+                <div class="space-y-1">
+                    <p class="text-[10px] font-headline font-bold uppercase text-secondary">LINES</p>
+                    <p id="lines" class="text-2xl md:text-4xl font-headline font-black tracking-tighter text-primary">0</p>
+                </div>
+                <div class="space-y-2 pt-4">
+                    <p class="text-[10px] font-headline font-bold uppercase text-secondary">NEXT</p>
+                    <div class="w-16 h-16 md:w-24 md:h-24 bg-surface-container flex items-center justify-center relative border border-outline-variant">
+                        <canvas id="next-piece" width="96" height="96"></canvas>
+                    </div>
+                </div>
+            </aside>
+            <section class="relative">
+                <canvas id="game-board" width="300" height="600" class="bg-surface-container-low border-[4px] border-primary tetris-grid"></canvas>
+                
+                <div id="game-over" class="absolute inset-0 bg-[#f2ffcf] bg-opacity-90 flex flex-col items-center justify-center hidden">
+                    <h1 class="text-3xl font-black font-headline text-primary uppercase mb-2">GAME OVER</h1>
+                    <p class="text-xl font-bold mb-4 font-headline text-[#002104] uppercase">Score: <span id="final-score">0</span></p>
+                    <button id="restart-btn" class="bg-primary text-white font-headline px-4 py-2 font-bold border-4 border-primary hover:bg-[#CDF14B] hover:text-[#002104] transition-none uppercase">RESTART</button>
+                    <button id="quit-btn" class="mt-4 bg-secondary text-white font-headline px-4 py-2 font-bold border-4 border-secondary hover:bg-primary transition-none uppercase">QUIT</button>
+                </div>
+            </section>
+        </div>
+        <aside class="flex flex-col items-center gap-6 w-full max-w-xs md:mt-0 mt-2">
+            <div class="grid grid-cols-3 gap-2">
+                <div></div>
+                <button id="btn-up" class="w-14 h-14 md:w-16 md:h-16 bg-primary text-white flex items-center justify-center hover:opacity-80 active:scale-95 transition-none">
+                    <span class="material-symbols-outlined">expand_less</span>
+                </button>
+                <div></div>
+                <button id="btn-left" class="w-14 h-14 md:w-16 md:h-16 bg-primary text-white flex items-center justify-center hover:opacity-80 active:scale-95 transition-none">
+                    <span class="material-symbols-outlined">chevron_left</span>
+                </button>
+                <button id="btn-down" class="w-14 h-14 md:w-16 md:h-16 bg-primary text-white flex items-center justify-center hover:opacity-80 active:scale-95 transition-none">
+                    <span class="material-symbols-outlined">expand_more</span>
+                </button>
+                <button id="btn-right" class="w-14 h-14 md:w-16 md:h-16 bg-primary text-white flex items-center justify-center hover:opacity-80 active:scale-95 transition-none">
+                    <span class="material-symbols-outlined">chevron_right</span>
+                </button>
+            </div>
+            <div class="flex gap-4 w-full px-4">
+                <button id="btn-rotate" class="flex-1 py-3 bg-secondary text-white font-headline font-bold uppercase tracking-widest text-sm hover:opacity-90 active:bg-primary">
+                    ROT
+                </button>
+                <button id="btn-harddrop" class="flex-1 py-3 bg-surface-container-highest text-primary font-headline font-bold uppercase tracking-widest text-sm hover:opacity-90 active:bg-primary active:text-white">
+                    DROP
+                </button>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Leaderboard View -->
+    <div id="leaderboard-view" class="hidden w-full max-w-2xl flex flex-col items-center">
+        <div class="w-full text-center mb-8">
+            <h1 class="font-headline text-5xl md:text-7xl font-black tracking-tighter text-primary uppercase mb-2">HALL OF FAME</h1>
+            <div class="h-1 w-full bg-primary mb-1"></div>
+        </div>
+        <div class="w-full bg-surface-container-low p-1 mb-8">
+            <div class="bg-surface-container border-2 border-primary p-6">
+                <div class="flex flex-col gap-1">
+                    <div class="flex justify-between items-center py-3 px-4 bg-primary text-background font-headline font-bold text-xl tracking-widest"><span class="w-12">01</span><span class="flex-grow text-left ml-4">CYBER_KING</span><span class="text-right">482,000</span></div>
+                    <div class="flex justify-between items-center py-3 px-4 font-headline font-bold text-xl tracking-widest border-b border-outline-variant"><span class="w-12 text-secondary">02</span><span class="flex-grow text-left ml-4">NEO_PIXEL</span><span class="text-right">395,500</span></div>
+                    <div class="flex justify-between items-center py-3 px-4 font-headline font-bold text-xl tracking-widest border-b border-outline-variant"><span class="w-12 text-secondary">03</span><span class="flex-grow text-left ml-4">GLITCH_BIT</span><span class="text-right">312,000</span></div>
+                    <div class="flex justify-between items-center py-3 px-4 font-headline font-bold text-xl tracking-widest"><span class="w-12 text-secondary">04</span><span class="flex-grow text-left ml-4">BYTE_RUNNER</span><span class="text-right">245,000</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings View -->
+    <div id="settings-view" class="hidden w-full max-w-md flex flex-col items-center">
+        <div class="w-full text-center mb-8">
+            <h1 class="font-headline text-5xl font-black tracking-tighter text-primary uppercase mb-2">SETTINGS</h1>
+            <div class="h-1 w-full bg-primary mb-1"></div>
+        </div>
+        <div class="w-full space-y-6">
+            <div class="flex justify-between items-center p-4 bg-surface-container border-b-4 border-primary">
+                <span class="font-headline font-bold uppercase">SOUND EFFECTS</span>
+                <button class="w-12 h-6 bg-primary relative"><div class="absolute right-1 top-1 w-4 h-4 bg-background"></div></button>
+            </div>
+            <div class="flex justify-between items-center p-4 bg-surface-container border-b-4 border-primary">
+                <span class="font-headline font-bold uppercase">MUSIC</span>
+                <button class="w-12 h-6 bg-surface-container-highest relative border border-primary"><div class="absolute left-1 top-1 w-4 h-4 bg-primary"></div></button>
+            </div>
+            <div class="flex justify-between items-center p-4 bg-surface-container border-b-4 border-primary">
+                <span class="font-headline font-bold uppercase">GHOST PIECE</span>
+                <button class="w-12 h-6 bg-primary relative"><div class="absolute right-1 top-1 w-4 h-4 bg-background"></div></button>
+            </div>
+        </div>
+    </div>
 </main>
-<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-stretch h-16 bg-[#f2ffcf] dark:bg-[#002104]">
-<div class="flex flex-col items-center justify-center bg-[#002104] dark:bg-[#f2ffcf] text-[#f2ffcf] dark:text-[#002104] p-4 flex-1">
-<span class="material-symbols-outlined">videogame_asset</span>
-</div>
-<div class="flex flex-col items-center justify-center text-[#002104] dark:text-[#f2ffcf] opacity-50 p-4 flex-1">
-<span class="material-symbols-outlined">trophy</span>
-</div>
-<div class="flex flex-col items-center justify-center text-[#002104] dark:text-[#f2ffcf] opacity-50 p-4 flex-1">
-<span class="material-symbols-outlined">settings</span>
-</div>
+
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-stretch h-16 bg-[#f2ffcf] dark:bg-[#002104] border-t-2 border-primary">
+    <button id="nav-home" class="flex flex-col items-center justify-center bg-[#002104] dark:bg-[#f2ffcf] text-[#f2ffcf] dark:text-[#002104] p-4 flex-1 transition-none hover:bg-primary hover:text-background">
+        <span class="material-symbols-outlined">videogame_asset</span>
+    </button>
+    <button id="nav-leaderboard" class="flex flex-col items-center justify-center text-[#002104] dark:text-[#f2ffcf] p-4 flex-1 transition-none hover:bg-surface-container-high">
+        <span class="material-symbols-outlined">trophy</span>
+    </button>
+    <button id="nav-settings" class="flex flex-col items-center justify-center text-[#002104] dark:text-[#f2ffcf] p-4 flex-1 transition-none hover:bg-surface-container-high">
+        <span class="material-symbols-outlined">settings</span>
+    </button>
 </nav>
+
 <div class="h-16"></div>
 <script src="script.js"></script>
 </body></html>

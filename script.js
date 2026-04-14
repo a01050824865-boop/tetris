@@ -4,6 +4,19 @@ const ctx = canvas.getContext('2d');
 const nextCanvas = document.getElementById('next-piece');
 const nextCtx = nextCanvas.getContext('2d');
 
+const views = {
+    home: document.getElementById('home-view'),
+    game: document.getElementById('game-view'),
+    leaderboard: document.getElementById('leaderboard-view'),
+    settings: document.getElementById('settings-view')
+};
+
+const navButtons = {
+    home: document.getElementById('nav-home'),
+    leaderboard: document.getElementById('nav-leaderboard'),
+    settings: document.getElementById('nav-settings')
+};
+
 const scoreElement = document.getElementById('score');
 const levelElement = document.getElementById('level');
 const linesElement = document.getElementById('lines');
@@ -63,6 +76,7 @@ let score = 0;
 let lines = 0;
 let level = 1;
 let isGameOver = false;
+let highScore = localStorage.getItem('tetrisHighScore') || 0;
 
 let currentPiece = null;
 let nextPieceObj = null;
@@ -235,7 +249,23 @@ function updateScore(linesCleared) {
     scoreElement.innerText = score;
     levelElement.innerText = level;
     linesElement.innerText = lines;
+    
+    if (score > highScore) {
+        highScore = score;
+        localStorage.setItem('tetrisHighScore', highScore);
+        updateHighScoreDisplay();
+    }
 }
+
+function updateHighScoreDisplay() {
+    const hsElement = document.getElementById('high-score');
+    if (hsElement) {
+        hsElement.innerText = highScore.toString().padStart(6, '0');
+    }
+}
+
+// Initial high score display
+updateHighScoreDisplay();
 
 function gameOver() {
     isGameOver = true;
@@ -362,14 +392,59 @@ function update(time = 0) {
     animationId = requestAnimationFrame(update);
 }
 
-function init() {
-    board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
-    spawnPiece();
-    lastTime = performance.now();
-    update(lastTime);
+function showView(viewId) {
+    // Hide all views
+    Object.values(views).forEach(view => view.classList.add('hidden'));
+    
+    // Reset nav buttons opacity/highlight
+    Object.values(navButtons).forEach(btn => {
+        btn.classList.remove('bg-[#002104]', 'dark:bg-[#f2ffcf]', 'text-[#f2ffcf]', 'dark:text-[#002104]');
+        btn.classList.add('text-[#002104]', 'dark:text-[#f2ffcf]');
+    });
+
+    // Show target view
+    if (views[viewId]) {
+        views[viewId].classList.remove('hidden');
+    }
+
+    // Highlight nav button
+    let navKey = viewId === 'game' ? 'home' : viewId;
+    if (navButtons[navKey]) {
+        navButtons[navKey].classList.add('bg-[#002104]', 'dark:bg-[#f2ffcf]', 'text-[#f2ffcf]', 'dark:text-[#002104]');
+        navButtons[navKey].classList.remove('text-[#002104]', 'dark:text-[#f2ffcf]');
+    }
+
+    // Pause/Resume game logic
+    if (viewId !== 'game' && animationId) {
+        cancelAnimationFrame(animationId);
+        animationId = null;
+    } else if (viewId === 'game' && !isGameOver && !animationId) {
+        lastTime = performance.now();
+        update(lastTime);
+    }
 }
 
-init();
+// Event Listeners for Navigation
+navButtons.home.addEventListener('click', () => showView(currentPiece ? 'game' : 'home'));
+navButtons.leaderboard.addEventListener('click', () => showView('leaderboard'));
+navButtons.settings.addEventListener('click', () => showView('settings'));
+
+// Event Listeners for Home screen buttons
+document.getElementById('start-game-btn').addEventListener('click', () => {
+    showView('game');
+    resetGame();
+});
+
+document.getElementById('home-scores-btn').addEventListener('click', () => showView('leaderboard'));
+document.getElementById('home-settings-btn').addEventListener('click', () => showView('settings'));
+
+// Quit button in Game Over screen
+document.getElementById('quit-btn').addEventListener('click', () => {
+    isGameOver = false;
+    currentPiece = null;
+    document.getElementById('game-over').classList.add('hidden');
+    showView('home');
+});
 
 /* Mobile Controls Binding */
 function setupMobileControls() {

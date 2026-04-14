@@ -78,12 +78,11 @@ let level = 1;
 let isGameOver = false;
 let highScore = localStorage.getItem('tetrisHighScore') || 0;
 
-let leaderboard = JSON.parse(localStorage.getItem('tetrisLeaderboard')) || [
-    { name: 'CYBER_KING', score: 482000 },
-    { name: 'NEO_PIXEL', score: 395500 },
-    { name: 'GLITCH_BIT', score: 312000 },
-    { name: 'BYTE_RUNNER', score: 245000 }
-];
+let leaderboard = JSON.parse(localStorage.getItem('tetrisLeaderboard')) || [];
+
+// Filter out old dummy data if they somehow persisted in user's localStorage
+const dummyNames = ['CYBER_KING', 'NEO_PIXEL', 'GLITCH_BIT', 'BYTE_RUNNER'];
+leaderboard = leaderboard.filter(entry => !dummyNames.includes(entry.name));
 
 let settings = JSON.parse(localStorage.getItem('tetrisSettings')) || {
     sound: true,
@@ -282,6 +281,16 @@ function updateLeaderboardUI() {
     if (!list) return;
 
     list.innerHTML = '';
+    
+    if (leaderboard.length === 0) {
+        list.innerHTML = `
+            <div class="py-12 text-center opacity-50 font-headline font-bold uppercase tracking-widest">
+                NO RECORDS YET
+            </div>
+        `;
+        return;
+    }
+
     leaderboard.sort((a, b) => b.score - a.score).slice(0, 5).forEach((entry, index) => {
         const item = document.createElement('div');
         const isSelf = entry.name === 'YOU';

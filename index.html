@@ -285,16 +285,6 @@
     </button>
 </div>
 
-<!-- Firebase SDKs -->
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, collection, doc, setDoc, getDoc, addDoc, query, orderBy, limit, getDocs, deleteDoc, updateDoc, onSnapshot, where, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-    window.FirebaseLib = {
-        initializeApp, getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut,
-        getFirestore, collection, doc, setDoc, getDoc, addDoc, query, orderBy, limit, getDocs, deleteDoc, updateDoc, onSnapshot, where, writeBatch
-    };
-</script>
-<script src="script.js"></script>
+<!-- Game Logic -->
+<script type="module" src="script.js"></script>
 </body></html>

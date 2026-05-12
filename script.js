@@ -1,3 +1,7 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore, collection, doc, setDoc, getDoc, addDoc, query, orderBy, limit, getDocs, deleteDoc, updateDoc, onSnapshot, where, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
 // DOM Elements
 const canvas = document.getElementById('game-board');
 const ctx = canvas.getContext('2d');
@@ -33,7 +37,7 @@ const firebaseConfig = {
   measurementId: "G-RNE8930MYX"
 };
 
-const { initializeApp, getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, getFirestore, collection, doc, setDoc, getDoc, addDoc, query, orderBy, limit, getDocs, deleteDoc, updateDoc, onSnapshot, where, writeBatch } = window.FirebaseLib;
+
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);

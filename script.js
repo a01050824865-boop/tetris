@@ -48,26 +48,42 @@ let currentUser = null;
 let userProfile = null;
 const ADMIN_EMAIL = "code_4@adgd.ms.kr";
 
-// Game Constants
 const ROWS = 20;
 const COLS = 10;
-// Dynamically calculate block size responsive to screen height & width
-const availableHeight = window.innerHeight - 280; // controls + navbar
-const availableWidth = window.innerWidth - 120; // safe area for left sidebar
-let BLOCK_SIZE = Math.max(15, Math.min(30, 
-    Math.min(
-        Math.floor(availableHeight / ROWS),
-        Math.floor(availableWidth / COLS)
-    )
-));
+let BLOCK_SIZE = 20;
 
-// Resize canvases appropriately
-canvas.width = COLS * BLOCK_SIZE;
-canvas.height = ROWS * BLOCK_SIZE;
-canvas.style.backgroundSize = `${BLOCK_SIZE}px ${BLOCK_SIZE}px`;
+function resizeBoard() {
+    const isMobile = window.innerWidth < 768;
+    // More conservative height reservation on mobile to ensure controls fit
+    const reservedHeight = isMobile ? 360 : 250;
+    const reservedWidth = isMobile ? 80 : 150;
 
-nextCanvas.width = 4 * BLOCK_SIZE;
-nextCanvas.height = 4 * BLOCK_SIZE;
+    const availableHeight = window.innerHeight - reservedHeight;
+    const availableWidth = window.innerWidth - reservedWidth;
+
+    BLOCK_SIZE = Math.max(12, Math.min(30, 
+        Math.min(
+            Math.floor(availableHeight / ROWS),
+            Math.floor(availableWidth / COLS)
+        )
+    ));
+
+    canvas.width = COLS * BLOCK_SIZE;
+    canvas.height = ROWS * BLOCK_SIZE;
+    canvas.style.backgroundSize = `${BLOCK_SIZE}px ${BLOCK_SIZE}px`;
+
+    nextCanvas.width = 4 * BLOCK_SIZE;
+    nextCanvas.height = 4 * BLOCK_SIZE;
+    
+    if (typeof draw === 'function' && currentPiece) {
+        draw();
+        drawNextPiece();
+    }
+}
+
+window.addEventListener('resize', resizeBoard);
+resizeBoard();
+
 // Initialize board
 let board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
 
